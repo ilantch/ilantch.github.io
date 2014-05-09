@@ -31,7 +31,7 @@ function nodesCtrl($scope) {
 
     $scope.updateCanvas = function(nodeId) {
         parentVal = $('#node' + nodeId).val();
-        if (parseInt(arentVal) === nodeId) {
+        if (parseInt(parentVal) === nodeId) {
             return;
         }
         if (parentVal == "") {
