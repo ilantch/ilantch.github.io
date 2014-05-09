@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="graph.css">
+    <title></title>
+</head>
+<body ng-app>
+    <div id="canvasContainer" ng-controller="nodesCtrl">
+        <canvas id="graphCanvas"></canvas>
+
+        <div ng-repeat="node in nodes" class="nodeContainer">
+            <div class="nodeText">{{node.text}}</div>
+            <input type="number" class="nodeParentInput" id="node{{node.id}}" ng-model="parent" ng-change="updateCanvas({{node.id}})">
+        </div>
+        <br><br>
+        <span id="treeScore">Tree Score is {{treeVal}}</span>
+        <br>
+        <button id="rand" ng-click="generateRandomModel()">Random model</button>
+        <input type="file" id="inputFile">
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.7/angular.min.js"></script>
+    <script src="graph.js"></script>
+</body>
+</html>
