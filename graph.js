@@ -1,10 +1,6 @@
 /**
  * Created by User on 5/7/14.
  */
-/*
- this is the JS for the main jsPlumb demo.  it is shared between the YUI, jQuery and MooTools
- demo pages.
- */
 
 function nodesCtrl($scope) {
     $scope.nodes = [];
@@ -13,7 +9,7 @@ function nodesCtrl($scope) {
     $scope.treeVal = 0.0;
     $scope.selectedEdges = [];
 
-    $scope.nodes=[{text:"I",id:0},{text:"am",id:1},{text:"Ilan",id:2},{text: "ALongWordWithLotsOFText",id:3},{text:"anotherWord",id:4}];
+    // $scope.nodes=[{text:"I",id:0},{text:"am",id:1},{text:"Ilan",id:2},{text: "ALongWordWithLotsOFText",id:3},{text:"anotherWord",id:4}];
 
     $('#inputFile')[0].onchange = function(e) {
         if (e.target.files.length > 0) {
