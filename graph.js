@@ -3,27 +3,31 @@
  */
 
 function nodesCtrl($scope) {
-    $scope.nodes = [];
-    $scope.firstOrderWeights = []; // node,node -> val
-    $scope.secondOrderWeights = [];// node,node , node,node -> val
-    $scope.treeVal = 0.0;
-    $scope.selectedEdges = [];
+
+    reset();
+
+    function reset() {
+        $scope.nodes = [];
+        $scope.firstOrderWeights = []; // node,node -> val
+        $scope.secondOrderWeights = [];// node,node , node,node -> val
+        $scope.treeVal = 0.0;
+        $scope.selectedEdges = [];
+        $scope.randText = "";
+        $('#graphCanvas')[0].getContext('2d').clearRect(0,0,$('#graphCanvas')[0].width,$('#graphCanvas')[0].height);
+    }
 
     // $scope.nodes=[{text:"I",id:0},{text:"am",id:1},{text:"Ilan",id:2},{text: "ALongWordWithLotsOFText",id:3},{text:"anotherWord",id:4}];
 
     $('#inputFile')[0].onchange = function(e) {
         if (e.target.files.length > 0) {
-            // reset tree vals
-            $scope.treeVal = 0.0;
-            $scope.selectedEdges = [];
 
+            reset();
             // read input
             var f  = e.target.files[0];
             var fr = new FileReader();
             fr.readAsText(f);
             fr.onload = function(e) {
                 parseInputFile(e.target.result,$scope);
-                $('#graphCanvas')[0].getContext('2d').clearRect(0,0,$('#graphCanvas')[0].width,$('#graphCanvas')[0].height);
                 $scope.$digest();
             };
         }
@@ -62,11 +66,11 @@ function nodesCtrl($scope) {
         to = nodeId;
         from = parentNum;
 
-        // update score
-        updateScores(from,to,false);
-
         // remove the edge from $scope
         $scope.selectedEdges[to] = undefined;
+
+        // update score
+        updateScores();
 
         // update canvas
         drawCanvas();
@@ -82,7 +86,7 @@ function nodesCtrl($scope) {
         $scope.selectedEdges[to] = from;
 
         // update scores
-        updateScores(from,to,true);
+        updateScores();
 
         // update canvas
         drawCanvas();
@@ -90,18 +94,21 @@ function nodesCtrl($scope) {
     }
 
     function updateScores(from,to,addedOrRemoved) {
-        // calc the score, and then add or remove accordign to input flag
+        // run on all edges
         sum = 0.0;
-        // first order scores
-        sum += parseFloat($scope.firstOrderWeights[from][to]);
-        for (from2 in $scope.secondOrderWeights[from][to]) {
-            for (to2 in $scope.secondOrderWeights[from][to][from2]) {
-                // if this is not the same edge , and the 2nd edge exists
-                if ( ((from2 != from) || (to2 != to))  && ($scope.selectedEdges[to2] == from2 ) )
-                sum += parseFloat($scope.secondOrderWeights[from][to][from2][to2]);
+        for (to1 in $scope.selectedEdges) {
+            from1 = $scope.selectedEdges[to1];
+            if (from1 >= 0) {
+                sum += parseFloat($scope.firstOrderWeights[from1][to1]);
+                for (to2= to1+1 ; to2 < $scope.selectedEdges.length ; to2++) {
+                    from2 = $scope.selectedEdges[to2];
+                    if (from2 >= 0) {
+                        sum += parseFloat($scope.secondOrderWeights[from1][to1][from2][to2]);
+                    }
+                }
             }
         }
-        addedOrRemoved ? $scope.treeVal += sum : $scope.treeVal -= sum;
+        $scope.treeVal = sum;
     }
 
     function drawCanvas() {
@@ -110,6 +117,9 @@ function nodesCtrl($scope) {
         canvas.height = canvas.offsetHeight;
         var ctx = canvas.getContext('2d');
         ctx.clearRect(0,0,canvas.width,canvas.height); // clear canvas
+
+        // arrow colors:
+        colors = ["lime","red","black","brown", "darkBlue", "orange", "lawnGreen", "purple"];
         for (to in $scope.selectedEdges) {
             ctx.beginPath();
             from = $scope.selectedEdges[to];
@@ -125,14 +135,21 @@ function nodesCtrl($scope) {
 
                 // draw the line
                 debugger;
-                ctx.arc((to_x + from_x)/2, canvas.height - 4, Math.abs((to_x - from_x)/2), 0, Math.PI, true);
+                color = colors[parseInt(Math.random()*colors.length)];
+                ctx.fillStyle = color;
+                ctx.strokeStyle = color;
+                // right arrow will start slightly to the right
+                rightArrow = (to_x > from_x);
+                xPoint = rightArrow ? ((to_x + from_x)/2 + 3) : ((to_x + from_x)/2 - 3);
+                yPoint = rightArrow ? (canvas.height - 2) : (canvas.height - 5);
+                r      = rightArrow ? (Math.abs((to_x - from_x)/2) - 3) : (Math.abs((to_x - from_x)/2) + 3);
+                ctx.arc(xPoint,yPoint , r, 0, Math.PI, true);
                 ctx.stroke();
-
                 // draw the traiangle (arrowhead)
                 ctx.beginPath();
-                ctx.moveTo(to_x,canvas.height - 4);
-                ctx.lineTo(to_x + 5,canvas.height - 9);
-                ctx.lineTo(to_x - 5,canvas.height - 9);
+                rightArrow ? ctx.moveTo(to_x,canvas.height - 2)     : ctx.moveTo(to_x - 6,canvas.height - 4);
+                rightArrow ? ctx.lineTo(to_x + 5,canvas.height - 9) : ctx.lineTo(to_x - 1,canvas.height - 11);
+                rightArrow ? ctx.lineTo(to_x - 5,canvas.height - 9) : ctx.lineTo(to_x - 11,canvas.height - 11);
                 ctx.fill();
             }
         }
@@ -192,8 +209,15 @@ function nodesCtrl($scope) {
     }
     $scope.generateRandomModel = function() {
         debugger;
-        n = 7;
-        out  = "nodes a sentence with six words !"
+        if ($scope.randText == "") {
+            window.alert("please insert text to randomize on");
+            return;
+        }
+
+        nodes = $scope.randText.trim().replace(/\s{2,}/g, ' ').split(" ");
+
+        n = nodes.length + 1;
+        out  = "nodes " +  $scope.randText;
         out1 = "1stOrder ";
         for (i = 0 ; i < n ; i++ ) {
             for (j = 0 ; j < n ; j++ ) {
@@ -221,11 +245,9 @@ function nodesCtrl($scope) {
         }
 
         // reset tree vals
-        $scope.treeVal = 0.0;
-        $scope.selectedEdges = [];
+        reset();
         debugger;
         parseInputFile(out + "\n" + out1 + "\n" + out2,$scope);
-        $('#graphCanvas')[0].getContext('2d').clearRect(0,0,$('#graphCanvas')[0].width,$('#graphCanvas')[0].height);
 //            $scope.$digest();
     }
 }
