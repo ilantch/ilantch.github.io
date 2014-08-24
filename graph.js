@@ -260,7 +260,7 @@ function nodesCtrl($scope) {
 	}
 	
 	if (querystring('file') != '') {
-		$('#inputFile')[0].val = querystring('file');
+		$('#inputFile')[0].files[0] = querystring('file');
 		window.alert(querystring('file'));
 	}
 
