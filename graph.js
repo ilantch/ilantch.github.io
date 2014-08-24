@@ -261,6 +261,7 @@ function nodesCtrl($scope) {
 	
 	if (querystring('file') != '') {
 		$('#inputFile')[0].val = querystring('file');
+		window.alert(querystring('file'));
 	}
 
 	
