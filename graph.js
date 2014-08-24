@@ -3,7 +3,7 @@
  */
 
 function nodesCtrl($scope) {
-
+	
     reset();
 
     function reset() {
@@ -250,4 +250,18 @@ function nodesCtrl($scope) {
         parseInputFile(out + "\n" + out1 + "\n" + out2,$scope);
 //            $scope.$digest();
     }
+	
+	// code snip from http://stackoverflow.com/questions/3788125/jquery-querystring
+	function querystring(key) {
+		var re=new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
+		var r=[], m;
+		while ((m=re.exec(document.location.search)) != null) r.push(m[1]);
+		return r;
+	}
+	
+	if (querystring('file') != '') {
+		$('#inputFile')[0].val = querystring('file');
+	}
+
+	
 }
