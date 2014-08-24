@@ -20,16 +20,9 @@ function nodesCtrl($scope) {
 
     $('#inputFile')[0].onchange = function(e) {
         if (e.target.files.length > 0) {
-
+			
             reset();
-            // read input
-            var f  = e.target.files[0];
-            var fr = new FileReader();
-            fr.readAsText(f);
-            fr.onload = function(e) {
-                parseInputFile(e.target.result,$scope);
-                $scope.$digest();
-            };
+			handleChange(e.target.files[0]);
         }
     }
 
@@ -54,7 +47,16 @@ function nodesCtrl($scope) {
             console.log('UC');
         }
     }
-
+	
+	function handleChange(infile) {
+		// read input
+		var fr = new FileReader();
+		fr.readAsText(infile);
+		fr.onload = function(e) {
+			parseInputFile(e.target.result,$scope);
+			$scope.$digest();
+		};
+	}
     function clearEdge(nodeId,parentNum) {
         debugger;
         // if edge dont have data - do nothing
@@ -203,10 +205,15 @@ function nodesCtrl($scope) {
                         }
 //                        debugger;
                         break;
+					default:
+						window.alert('file parsing error');
+						reset();
+						return;
                 }
             }
         }
     }
+	
     $scope.generateRandomModel = function() {
         debugger;
         if ($scope.randText == "") {
@@ -260,8 +267,7 @@ function nodesCtrl($scope) {
 	}
 	
 	if (querystring('file') != '') {
-		$('#inputFile')[0].files[0] = querystring('file');
-		window.alert(querystring('file'));
+		handleChange(querystring('file'));
 	}
 
 	
